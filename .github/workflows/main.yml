@@ -15,8 +15,8 @@ jobs:
       - name: Run s3-zip-upload
         uses: NotCoffee418/s3-zip-upload@v1.4
         env:
-          role-to-assume: arn:aws:iam::017820695651:role/Github-role
-          role-session-name: Github-role
+          ROLE_ARN: arn:aws:iam::017820695651:role/Github-role
+          ROLE_NAME: Github-role
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
           AWS_REGION: ap-south-1
           SOURCE_MODE: ZIP
