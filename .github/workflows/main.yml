@@ -20,5 +20,5 @@ jobs:
           BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
           AWS_REGION: ap-south-1
           SOURCE_MODE: ZIP
-          SOURCE_PATH: /mnt/c/Users/karnapa/desktop/s3git
+          SOURCE_PATH: https://github.com/PadmashreeKarnam2611/myS3gitRepo.git
           DEST_FILE: /mnt/c/Users/karnapa/desktop/action.zip
