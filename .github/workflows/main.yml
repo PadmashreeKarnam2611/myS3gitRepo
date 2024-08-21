@@ -21,4 +21,4 @@ jobs:
           AWS_REGION: ap-south-1
           SOURCE_MODE: ZIP
           SOURCE_PATH: /mnt/c/Users/karnapa/desktop/s3git
-          DEST_FILE: /mnt/c/Users/karnapa/desktop/action.zip
+          DEST_FILE: action.zip
