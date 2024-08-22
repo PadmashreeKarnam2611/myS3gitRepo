@@ -20,7 +20,7 @@ jobs:
           role-to-assume: arn:aws:iam::017820695651:role/Github-role
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
-          
+
       - name: Zip files
         run: zip -r my-files.zip .
 
@@ -32,3 +32,7 @@ jobs:
       - name: Upload to S3
         run: |
           aws s3 cp my-files.zip s3://${{ secrets.S3_BUCKET_NAME }}/my-files.zip
+
+permissions:
+  id-token: write
+  contents: read
