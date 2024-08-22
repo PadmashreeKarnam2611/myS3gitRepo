@@ -1,4 +1,4 @@
-name: Upload ZIP to S3
+name: Upload to S3
 
 on:
   push:
@@ -13,18 +13,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Assume IAM role
+        id: assume-role
+        run: |
+          ROLE=$(aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name GitHubActionsSession)
+          echo "AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r '.Credentials.AccessKeyId')" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r '.Credentials.SecretAccessKey')" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=$(echo $ROLE | jq -r '.Credentials.SessionToken')" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Zip files
         run: zip -r my-files.zip .
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::017820695651:role/Github-role
-          role-session-name: github-actions-upload
-          aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
+      - name: Start SSM session
+        id: start-session
+        run: |
+          aws ssm start-session --target ${{ secrets.INSTANCE_ID }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["22"],"localPortNumber":["2222"]}'
 
       - name: Upload to S3
-        env:
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-        run: aws s3 cp my-files.zip s3://$S3_BUCKET_NAME/
+        run: |
+          aws s3 cp my-files.zip s3://${{ secrets.S3_BUCKET_NAME }}/my-files.zip
