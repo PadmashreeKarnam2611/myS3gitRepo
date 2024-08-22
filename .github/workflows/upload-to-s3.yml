@@ -28,7 +28,3 @@ jobs:
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
         run: aws s3 cp my-files.zip s3://$S3_BUCKET_NAME/
 
-      - name: Debug Environment Variables
-        run: |
-        echo "AWS Region: ${{ secrets.AWS_REGION }}"
-        echo "S3 Bucket Name: ${{ secrets.S3_BUCKET_NAME }}"
