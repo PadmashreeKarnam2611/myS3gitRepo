@@ -17,6 +17,7 @@ jobs:
         id: assume-role
         run: |
           ROLE=$(aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name GitHubActionsSession)
+          echo "ROLE: $ROLE"
           echo "AWS_ACCESS_KEY_ID=$(echo $ROLE | jq -r '.Credentials.AccessKeyId')" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=$(echo $ROLE | jq -r '.Credentials.SecretAccessKey')" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=$(echo $ROLE | jq -r '.Credentials.SessionToken')" >> $GITHUB_ENV
