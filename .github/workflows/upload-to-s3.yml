@@ -13,21 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
-
       - name: Zip files
         run: zip -r my-files.zip .
 
-      - name: Upload to S3 via Session Manager
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::017820695651:role/Github-role
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload to S3
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-        run: |
-          aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceids,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --parameters 'commands=["aws s3 cp my-files.zip s3://$S3_BUCKET_NAME/"]' \
-            --region $AWS_REGION
+        run: aws s3 cp my-files.zip s3://$S3_BUCKET_NAME/
