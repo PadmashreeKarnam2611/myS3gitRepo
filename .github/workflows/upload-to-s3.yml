@@ -13,7 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -24,10 +23,18 @@ jobs:
       - name: Zip files
         run: zip -r my-files.zip .
 
-      - name: Start SSM session
-        id: start-session
+      - name: Install EC2 Instance Connect CLI
         run: |
-          aws ssm start-session --target ${{ secrets.INSTANCE_ID }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"portNumber":["22"],"localPortNumber":["2222"]}'
+          sudo apt-get update
+          sudo apt-get install -y ec2-instance-connect
+
+      - name: Connect to EC2 Instance using EC2 Instance Connect
+        run: |
+          INSTANCE_ID=${{ secrets.INSTANCE_ID }}
+          REGION=${{ secrets.AWS_REGION }}
+          PUBLIC_KEY=$(ssh-keygen -t rsa -b 2048 -f /tmp/tempkey -q -N "" && cat /tmp/tempkey.pub)
+          aws ec2-instance-connect send-ssh-public-key --instance-id $INSTANCE_ID --availability-zone $(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].Placement.AvailabilityZone" --output text) --instance-os-user ec2-user --ssh-public-key "$PUBLIC_KEY"
+          ssh -i /tmp/tempkey ec2-user@$(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].PublicDnsName" --output text)
 
       - name: Upload to S3
         run: |
