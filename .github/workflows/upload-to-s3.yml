@@ -17,7 +17,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::017820695651:role/Github-role
-          aws-region: ${{ secrets.AWS_REGION } }
+          aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
 
       - name: Zip files
