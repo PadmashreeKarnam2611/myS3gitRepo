@@ -27,14 +27,17 @@ jobs:
         run: |
           sudo yum update
           sudo yum install -y ec2-instance-connect
+          ec2-instance-connect --version
 
       - name: Connect to EC2 Instance using EC2 Instance Connect
         run: |
           INSTANCE_ID=${{ secrets.INSTANCE_ID }}
           REGION=${{ secrets.AWS_REGION }}
           PUBLIC_KEY=$(ssh-keygen -t rsa -b 2048 -f /tmp/tempkey -q -N "" && cat /tmp/tempkey.pub)
+          echo "Public Key: $PUBLIC_KEY"
           aws ec2-instance-connect send-ssh-public-key --instance-id $INSTANCE_ID --availability-zone $(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].Placement.AvailabilityZone" --output text) --instance-os-user ec2-user --ssh-public-key "$PUBLIC_KEY"
           INSTANCE_DNS=$(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].PublicDnsName" --output text)
+          echo "Instance DNS: $INSTANCE_DNS"
           mkdir -p ~/.ssh
           ssh-keyscan -H $INSTANCE_DNS >> ~/.ssh/known_hosts
           ssh -i /tmp/tempkey ec2-user@$INSTANCE_DNS
