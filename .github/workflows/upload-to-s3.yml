@@ -25,8 +25,8 @@ jobs:
 
       - name: Install EC2 Instance Connect CLI
         run: |
-          sudo yum update
-          sudo yum install -y ec2-instance-connect
+          sudo apt-get update
+          sudo apt-get install -y ec2-instance-connect
 
       - name: Connect to EC2 Instance using EC2 Instance Connect
         run: |
