@@ -7,7 +7,7 @@ on:
 
 jobs:
   upload:
-    runs-on: self-hosted
+    runs-on: my-selfhosted-runner
 
     steps:
       - name: Checkout code
