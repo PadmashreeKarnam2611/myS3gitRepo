@@ -7,37 +7,20 @@ on:
 
 jobs:
   upload:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+ 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::017820695651:role/Github-role
           aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
 
       - name: Zip files
         run: zip -r my-files.zip .
-
-      - name: Install EC2 Instance Connect CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ec2-instance-connect
-
-      - name: Connect to EC2 Instance using EC2 Instance Connect
-        run: |
-          INSTANCE_ID=${{ secrets.INSTANCE_ID }}
-          REGION=${{ secrets.AWS_REGION }}
-          PUBLIC_KEY=$(ssh-keygen -t rsa -b 2048 -f /tmp/tempkey -q -N "" && cat /tmp/tempkey.pub)
-          aws ec2-instance-connect send-ssh-public-key --instance-id $INSTANCE_ID --availability-zone $(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].Placement.AvailabilityZone" --output text) --instance-os-user ec2-user --ssh-public-key "$PUBLIC_KEY"
-          INSTANCE_DNS=$(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].PublicDnsName" --output text)
-          mkdir -p ~/.ssh
-          ssh-keyscan -H $INSTANCE_DNS >> ~/.ssh/known_hosts
-          ssh -i /tmp/tempkey ec2-user@$INSTANCE_DNS
 
       - name: Upload to S3
         run: |
