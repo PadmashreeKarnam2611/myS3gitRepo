@@ -23,10 +23,26 @@ jobs:
       - name: Zip files
         run: zip -r my-files.zip .
 
+      - name: Install EC2 Instance Connect CLI
+        run: |
+          sudo yum update
+          sudo yum install -y ec2-instance-connect
+
+      - name: Connect to EC2 Instance using EC2 Instance Connect
+        run: 
+          REGION=${{ secrets.AWS_REGION }}
+          PUBLIC_KEY=$(ssh-keygen -t rsa -b 2048 -f /tmp/tempkey -q -N "" && cat /tmp/tempkey.pub)
+          aws ec2-instance-connect send-ssh-public-key --instance-id $INSTANCE_ID --availability-zone $(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].Placement.AvailabilityZone" --output text) --instance-os-user ec2-user --ssh-public-key "$PUBLIC_KEY"
+          INSTANCE_DNS=$(aws ec2 describe-instances --instance-id $INSTANCE_ID --query "Reservations[0].Instances[0].PublicDnsName" --output text)
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $INSTANCE_DNS >> ~/.ssh/known_hosts
+          ssh -i /tmp/tempkey ec2-user@$INSTANCE_DNS
+
       - name: Upload to S3
-        uses: aws-actions/aws-cli@v3
-        with:
-          aws-command: s3 cp
-          args: my-files.zip s3://${{ secrets.S3_BUCKET_NAME }}/my-files.zip
-          aws-region: ${{ secrets.AWS_REGION }}
+        run: |
+          aws s3 cp my-files.zip s3://${{ secrets.S3_BUCKET_NAME }}/my-files.zip
+
+permissions:
+  id-token: write
+  contents: read
 
