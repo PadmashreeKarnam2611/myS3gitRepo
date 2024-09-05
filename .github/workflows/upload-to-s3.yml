@@ -30,8 +30,7 @@ jobs:
 
       - name: Connect to EC2 Instance using EC2 Instance Connect
         run: |
-          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=
-          mywebserver-git" --query "Reservations[0].Instances[0].InstanceId" --output text)
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=mywebserver-git" --query "Reservations[0].Instances[0].InstanceId" --output text) 
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           REGION=${{ secrets.AWS_REGION }}
           PUBLIC_KEY=$(ssh-keygen -t rsa -b 2048 -f /tmp/tempkey -q -N "" && cat /tmp/tempkey.pub)
