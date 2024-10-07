@@ -25,7 +25,7 @@ jobs:
       - name: Upload to S3
         run: |
           aws s3 cp my-files.zip s3://${{ secrets.S3_BUCKET_NAME }}/my-files.zip
-
+ 
 permissions:
   id-token: write
   contents: read
