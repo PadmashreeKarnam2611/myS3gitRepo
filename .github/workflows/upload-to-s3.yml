@@ -16,7 +16,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::017820695651:role/Github-role
+          role-to-assume: arn:aws:iam::619071336210:role/github-role
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Zip files
